@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packing Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 15px; color: #333; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin: 0; color: #075e54; font-size: 22px; text-transform: uppercase; }
+        .date-line { text-align: center; font-weight: bold; margin-bottom: 20px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .section-label { font-weight: bold; margin-top: 15px; display: block; color: #1a2a6c; font-size: 16px; }
+        .input-group { margin: 12px 0; }
+        label { font-size: 13px; color: #555; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 18px; background: #fafafa; }
+        .calc-display { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #075e54; }
+        .breakdown { font-size: 15px; color: #444; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .total-highlight { font-weight: bold; color: #d35400; font-size: 20px; display: block; border-top: 1px solid #ddd; margin-top: 8px; padding-top: 8px; }
+        .line-gap { margin-top: 25px; padding-top: 15px; border-top: 3px double #ddd; }
+        .btn-wa { background: #25d366; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        .btn-wa:hover { background: #128c7e; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Packing Report</h1>
+    <div class="date-line" id="todayDate"></div>
+
+    <span class="section-label">Yesterday Packed</span>
+    <div class="input-group">
+        <label>45.36 kg Variety (Bags):</label>
+        <input type="number" id="qty45" placeholder="0" oninput="runCalculations()">
+    </div>
+    <div class="input-group">
+        <label>60.48 kg Variety (Bags):</label>
+        <input type="number" id="qty60" placeholder="0" oninput="runCalculations()">
+    </div>
+
+    <div class="calc-display">
+        <div class="breakdown"><span>45.36kg:</span> <span><span id="q45_val">0</span> bags / <span id="w45_val">0</span> kg</span></div>
+        <div class="breakdown"><span>60.48kg:</span> <span><span id="q60_val">0</span> bags / <span id="w60_val">0</span> kg</span></div>
+        <div class="total-highlight">
+            Total Production: <span id="totalProd" style="float: right;">0</span> kg
+        </div>
+    </div>
+
+    <div class="line-gap">
+        <span class="section-label">Loose Cones Stock</span>
+        <div class="input-group">
+            <label>Loose Bags (45.36kg conversion):</label>
+            <input type="number" id="qtyLoose" placeholder="0" oninput="runCalculations()">
+        </div>
+        <div class="calc-display" style="border-left-color: #f39c12;">
+            <div class="breakdown">
+                <span>Loose Stock:</span>
+                <span><span id="qL_val">0</span> bags / <span id="wL_val">0</span> kg</span>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-wa" onclick="sendToWhatsApp()">Share on WhatsApp</button>
+</div>
+
+<script>
+    // Set Date
+    const d = new Date();
+    document.getElementById('todayDate').innerText = d.toLocaleDateString('en-GB', {
+        day: '2-digit', month: 'long', year: 'numeric'
+    });
+
+    function runCalculations() {
+        const q45 = parseInt(document.getElementById('qty45').value) || 0;
+        const q60 = parseInt(document.getElementById('qty60').value) || 0;
+        const qL = parseInt(document.getElementById('qtyLoose').value) || 0;
+
+        const w45 = Math.round(q45 * 45.36);
+        const w60 = Math.round(q60 * 60.48);
+        const wL = Math.round(qL * 45.36);
+
+        // Update UI
+        document.getElementById('q45_val').innerText = q45;
+        document.getElementById('w45_val').innerText = w45.toLocaleString();
+        
+        document.getElementById('q60_val').innerText = q60;
+        document.getElementById('w60_val').innerText = w60.toLocaleString();
+        
+        document.getElementById('qL_val').innerText = qL;
+        document.getElementById('wL_val').innerText = wL.toLocaleString();
+
+        document.getElementById('totalProd').innerText = (w45 + w60).toLocaleString();
+    }
+
+    function sendToWhatsApp() {
+        const date = document.getElementById('todayDate').innerText;
+        const q45 = document.getElementById('q45_val').innerText;
+        const w45 = document.getElementById('w45_val').innerText;
+        const q60 = document.getElementById('q60_val').innerText;
+        const w60 = document.getElementById('w60_val').innerText;
+        const prod = document.getElementById('totalProd').innerText;
+        
+        const qL = document.getElementById('qL_val').innerText;
+        const wL = document.getElementById('wL_val').innerText;
+
+        const message = `*Packing Report*%0A` +
+                        `${date}%0A%0A` +
+                        `*Yesterday Packed:*%0A` +
+                        `- 45.36kg : ${q45} / ${w45} kg%0A` +
+                        `- 60.48kg : ${q60} / ${w60} kg%0A` +
+                        `*Total Production : ${prod} kg*%0A%0A` +
+                        `*Loose Cones Stock:*%0A` +
+                        `- 45.36kg : ${qL} / ${wL} kg`;
+
+        window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
